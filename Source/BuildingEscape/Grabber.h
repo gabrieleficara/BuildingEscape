@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Grabber.generated.h"
 
 
@@ -25,6 +26,11 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
+	// UPROPERTY allows to edit the Parameter from the editor
+	// EditAnywere indicates that this property can be edited by property windows, on archetypes and instances. 
 	UPROPERTY(EditAnywhere)
 	float Reach = 100;
+
+	//nullptr -> Null pointer in c++
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 };
