@@ -33,4 +33,8 @@ private:
 
 	//nullptr -> Null pointer in c++
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+	UInputComponent* InputComponent = nullptr;
+
+	void Grab();
+	void Release();
 };

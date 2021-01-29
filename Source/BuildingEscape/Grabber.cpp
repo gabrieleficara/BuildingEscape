@@ -26,6 +26,46 @@ void UGrabber::BeginPlay()
 
 	UE_LOG(LogTemp, Display, TEXT("GRABBER IN!"));
 	
+	// To find the physicshandle component the same pown as the grabber we will use GetOwner 
+	// FindComponentByClass is a function template, meaning we need to use angle brackets to specify the class we are looking for.
+	// It will find the first object in the class
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+
+	if (PhysicsHandle)
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("")
+		);
+	}
+	else
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("No physic handle component found in %s"),
+			*GetOwner()->GetName()
+		);
+	}
+
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	// Input component is present on every actor so this should always be true
+	if (InputComponent)
+	{
+		// instance of the class that is executing this code
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
+	// else
+	// {
+	// 	UE_LOG(
+	// 		LogTemp,
+	// 		Error,
+	// 		TEXT("No input component found in %s"),
+	// 		*GetOwner()->GetName()
+	// 	);
+	// }
 }
 
 
@@ -76,26 +116,14 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	{
 		UE_LOG(LogTemp, Display, TEXT("Actor %s Ready is within reach to be grabbed"), *(ActorHit->GetName()));
 	}
-	// To find the physicshandle component the same pown as the grabber we will use GetOwner 
-	// FindComponentByClass is a function template, meaning we need to use angle brackets to specify the class we are looking for.
-	// It will find the first object in the class
-	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+}
 
-	if (PhysicsHandle)
-	{
-		UE_LOG(
-			LogTemp,
-			Error,
-			TEXT("")
-		);
-	}
-	else
-	{
-		UE_LOG(
-			LogTemp,
-			Error,
-			TEXT("No physic handle component found in %s"),
-			*GetOwner()->GetName()
-		);
-	}
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab button pressed"));
+}
+
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab button released"));
 }
