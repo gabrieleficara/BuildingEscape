@@ -17,24 +17,31 @@ public:
 	// Sets default values for this component's properties
 	UGrabber();
 
+	// Called every frame (Hot Loop)
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 private:
-	// UPROPERTY allows to edit the Parameter from the editor
-	// EditAnywere indicates that this property can be edited by property windows, on archetypes and instances. 
-	UPROPERTY(EditAnywhere)
-	float Reach = 100;
+	void Grab();
+	void Release();
+	void FindPhysicsHandle();
+	void SetupInputComponent();
+	void GrabberDebugLine() const;
+	// Return the first actor with a physic body
+	FHitResult GetFirstPhisicBodyInReach() const;
 
 	//nullptr -> Null pointer in c++
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 	UInputComponent* InputComponent = nullptr;
 
-	void Grab();
-	void Release();
+	// UPROPERTY allows to edit the Parameter from the editor
+	// EditAnywere indicates that this property can be edited by property windows, on archetypes and instances. 
+	UPROPERTY(EditAnywhere)
+	bool DebugLine = false;
+
+	UPROPERTY(EditAnywhere)
+	float Reach = 100;
 };

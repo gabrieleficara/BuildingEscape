@@ -27,25 +27,25 @@ public:
 	void MoveDoor(const float& DeltaTime, const float& DoorSpeed);
 
 private:
+	float DoorLastOpen = 0.f;
 	float StartYaw;
 	float TargetYaw;
-	float DoorLastOpen = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	AActor* ActorThatOpens;
 
 	UPROPERTY(EditAnywhere)
 	float DeltaYaw = 90.f;
-	
-	UPROPERTY(EditAnywhere)
-	float DoorOpenSpeed = 2.f;
 
 	UPROPERTY(EditAnywhere)
 	float DoorCloseSpeed = 6.f;
 	
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate;
+	float DoorCloseDelay = 0.8f;
 	
 	UPROPERTY(EditAnywhere)
-	AActor* ActorThatOpens;
-
+	float DoorOpenSpeed = 2.f;
+	
 	UPROPERTY(EditAnywhere)
-	float DoorCloseDelay = 0.8f;
+	ATriggerVolume* PressurePlate;
 };

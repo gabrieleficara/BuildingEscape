@@ -1,9 +1,9 @@
 // Copyright Gabriele Ficara 2021
 
 
-#include "GameFramework/Actor.h"
-#include "Engine/World.h"
 #include "OpenDoor.h"
+#include "Engine/World.h"
+#include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 
 // Sets default values for this component's properties

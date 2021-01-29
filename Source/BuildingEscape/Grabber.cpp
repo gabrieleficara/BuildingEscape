@@ -1,9 +1,9 @@
 // Copyright Gabriele Ficara 2021
 
+#include "Grabber.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
-#include "Grabber.h"
 
 // Out is an empty macro we use to mark a function's parameters as an out parameter
 #define OUT
@@ -14,8 +14,6 @@ UGrabber::UGrabber()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -24,22 +22,47 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Display, TEXT("GRABBER IN!"));
+	FindPhysicsHandle();
+	SetupInputComponent();
+}
+
+// Called every frame (Hot Loop)
+void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
+	if (DebugLine)
+	{
+		GrabberDebugLine();
+	}
+
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+
+	// Get the players controller location and orientation
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+
+	// The following is a vectorial sum
+	// The Rotation has Norm (size) 1 so we need to multiply it by the lenght we need to reach
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+
+	// if the physics handle is attach
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		// move the object we are holding
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
+
+
+}
+
+void UGrabber::FindPhysicsHandle()
+{
 	// To find the physicshandle component the same pown as the grabber we will use GetOwner 
 	// FindComponentByClass is a function template, meaning we need to use angle brackets to specify the class we are looking for.
 	// It will find the first object in the class
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-
-	if (PhysicsHandle)
-	{
-		UE_LOG(
-			LogTemp,
-			Error,
-			TEXT("")
-		);
-	}
-	else
+	if (!PhysicsHandle)
 	{
 		UE_LOG(
 			LogTemp,
@@ -48,40 +71,15 @@ void UGrabber::BeginPlay()
 			*GetOwner()->GetName()
 		);
 	}
-
-	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
-	// Input component is present on every actor so this should always be true
-	if (InputComponent)
-	{
-		// instance of the class that is executing this code
-		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
-		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
-	}
-	// else
-	// {
-	// 	UE_LOG(
-	// 		LogTemp,
-	// 		Error,
-	// 		TEXT("No input component found in %s"),
-	// 		*GetOwner()->GetName()
-	// 	);
-	// }
 }
 
-
-// Called every frame
-void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGrabber::GrabberDebugLine() const
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// Get the players view point
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
 
 	// Get the players controller location and orientation
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
-
-	// Draw a line from player showing the reach
 
 	// The following is a vectorial sum
 	// The Rotation has Norm (size) 1 so we need to multiply it by the lenght we need to reach
@@ -98,6 +96,68 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		0,
 		5.f
 	);
+}
+
+void UGrabber::SetupInputComponent()
+{
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	// Input component is present on every actor so this should always be true
+	if (InputComponent)
+	{
+		// instance of the class that is executing this code
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
+}
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab button pressed"));
+
+	FHitResult HitResult = GetFirstPhisicBodyInReach();
+
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+
+	// Get the players controller location and orientation
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+
+	// The following is a vectorial sum
+	// The Rotation has Norm (size) 1 so we need to multiply it by the lenght we need to reach
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+
+	UPrimitiveComponent* ComponentToGrab = HitResult.GetComponent();
+
+	if (HitResult.GetActor())
+	{	
+		// If we hit something then attach the physics handle.
+		PhysicsHandle->GrabComponentAtLocation
+		(
+			ComponentToGrab,
+			NAME_None,
+			LineTraceEnd
+		);	
+	}
+}
+
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab button released"));
+	// TODO: release/remove the physicas handle
+	PhysicsHandle->ReleaseComponent();
+}
+
+FHitResult UGrabber::GetFirstPhisicBodyInReach() const
+{
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+
+	// Get the players controller location and orientation
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+
+	// The following is a vectorial sum
+	// The Rotation has Norm (size) 1 so we need to multiply it by the lenght we need to reach
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
 
 	FHitResult Hit;
 	// Define Parameters to pass into the collision function
@@ -116,14 +176,6 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	{
 		UE_LOG(LogTemp, Display, TEXT("Actor %s Ready is within reach to be grabbed"), *(ActorHit->GetName()));
 	}
-}
 
-void UGrabber::Grab()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Grab button pressed"));
-}
-
-void UGrabber::Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Grab button released"));
+	return Hit;
 }
