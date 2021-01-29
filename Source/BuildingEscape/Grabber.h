@@ -29,19 +29,25 @@ private:
 	void Release();
 	void FindPhysicsHandle();
 	void SetupInputComponent();
-	void GrabberDebugLine() const;
+
 	// Return the first actor with a physic body
 	FHitResult GetFirstPhisicBodyInReach() const;
 
+	// Return the line trace end
+	FVector GetPlayersReach() const;
+
+	// Return the player position in the world
+	FVector GetPlayersWorldPos() const;
+
 	//nullptr -> Null pointer in c++
+	UPROPERTY()
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+	
+	UPROPERTY()
 	UInputComponent* InputComponent = nullptr;
 
 	// UPROPERTY allows to edit the Parameter from the editor
 	// EditAnywere indicates that this property can be edited by property windows, on archetypes and instances. 
-	UPROPERTY(EditAnywhere)
-	bool DebugLine = false;
-
 	UPROPERTY(EditAnywhere)
 	float Reach = 100;
 };
