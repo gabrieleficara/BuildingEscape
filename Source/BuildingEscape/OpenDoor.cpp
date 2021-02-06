@@ -42,20 +42,24 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		// Opening Door
 		TargetYaw = StartYaw + DeltaYaw;
 
-		MoveDoor(DeltaTime, DoorOpenSpeed);
+		MoveDoor(DeltaTime, DoorOpenSpeed, OpenDoorSound);
 		DoorLastOpen = GetWorld()->GetTimeSeconds();
+		OpenDoorSound = true;
+		CloseDoorSound = false;
 	}
 	else if (DoorCloseDelay < GetWorld()->GetTimeSeconds() - DoorLastOpen)
 	{
 		// Closing Door
 		TargetYaw = StartYaw;
 
-		MoveDoor(DeltaTime, DoorCloseSpeed);
+		MoveDoor(DeltaTime, DoorCloseSpeed, CloseDoorSound);
+		OpenDoorSound = false;
+		CloseDoorSound = true;
 	}
 
 }
 
-void UOpenDoor::MoveDoor(const float& DeltaTime, const float& DoorSpeed)
+void UOpenDoor::MoveDoor(const float& DeltaTime, const float& DoorSpeed, const bool& HasSoundPlayed)
 {
 	FRotator OpenDoor = GetOwner()->GetActorRotation();
 
@@ -68,14 +72,13 @@ void UOpenDoor::MoveDoor(const float& DeltaTime, const float& DoorSpeed)
 	OpenDoor.Yaw = FMath::FInterpTo(OpenDoor.Yaw, TargetYaw, DeltaTime, DoorSpeed);
 	
 	GetOwner()->SetActorRotation(OpenDoor);
-	if (!BHasSoundPlayed)
+	if (!AudioComponent)
 	{
-		BHasSoundPlayed = true;
-		AudioComponent->Play();
+		UE_LOG(LogTemp, Warning, TEXT("Actor %s is missin an audio component"), *GetOwner()->GetName())
 	}
-	else
+	if (!HasSoundPlayed)
 	{
-		BHasSoundPlayed = false;
+		AudioComponent->Play();
 	}
 }
 
