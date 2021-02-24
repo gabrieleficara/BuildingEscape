@@ -31,7 +31,6 @@ void UOpenDoor::BeginPlay()
 	}
 }
 
-
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -62,9 +61,6 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 void UOpenDoor::MoveDoor(const float& DeltaTime, const float& DoorSpeed, const bool& HasSoundPlayed)
 {
 	FRotator OpenDoor = GetOwner()->GetActorRotation();
-
-	// UE_LOG(LogTemp, Display, TEXT("Actor %s starting Rotation: %s"), *GetOwner()->GetName(), *OpenDoor.ToString());
-	// UE_LOG(LogTemp, Display, TEXT("Target yaw: %f"), *GetOwner()->GetName(), TargetYaw);
 
 	// Uncomment for linear interpolation
 	// OpenDoor.Yaw = FMath::FInterpConstantTo(OpenDoor.Yaw, TargetYaw, DeltaTime, DoorSpeed * 25);

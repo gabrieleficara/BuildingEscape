@@ -22,6 +22,8 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	UPROPERTY()
+	UAudioComponent* AudioComponent = nullptr;
 
 public:	
 	// Called every frame
@@ -29,6 +31,7 @@ public:
 	void MoveDoor(const float& DeltaTime, const float& DoorSpeed, const bool& HasSoundPlayed);
 	float TotalMassOfActors() const;
 	void FindAudioComponent();
+	float GetStartingPos();
 
 private:
 	UPROPERTY()
@@ -41,9 +44,8 @@ private:
 	bool OpenDoorSound = false;
 	UPROPERTY()
 	bool CloseDoorSound = true;
-	UPROPERTY()
-	UAudioComponent* AudioComponent = nullptr;
 
+	/** Difference before closed and opened door(Rotation)*/
 	UPROPERTY(EditAnywhere)
 	float DeltaYaw = 90.f;
 
